@@ -1,28 +1,39 @@
+const res = require('express/lib/response');
 const Atendimento = require('../models/atedimentos');
 
 module.exports = app => {
-    app.get('/atendimentos', (request, response) => Atendimento.lista(response));
+    app.get('/atendimentos', async (request, response) => {
+        const atendimentos = await Atendimento.lista();
 
-    app.get('/atendimentos/:id', (request, response) => {
+        response.status(200).json(atendimentos);
+    });
+
+    app.get('/atendimentos/:id', async (request, response) => {
         const id = parseInt(request.params.id);
+        const atendimento = await Atendimento.buscaPorId(id);
 
-        Atendimento.buscaPorId(id, response);
+        response.status(200).json(atendimento);
     });
 
-    app.post('/atendimentos', (request, response) => {
+    app.post('/atendimentos', async (request, response) => {
         const atendimento = request.body;
-        Atendimento.adiciona(atendimento, response);
+        const atendimentoCriado = await Atendimento.adiciona(atendimento, response);
+
+        response.status(201).json(atendimentoCriado);
     });
 
-    app.patch('/atendimentos/:id', (request, response) => {
+    app.patch('/atendimentos/:id', async (request, response) => {
         const id = parseInt(request.params.id);
         const valores = request.body;
+        const valoresAlterados = await Atendimento.altera(id, valores);
 
-        Atendimento.altera(id, valores, response);
+        response.status(200).json(valoresAlterados);
     });
 
-    app.delete('/atendimentos/:id', (request, response) => {
+    app.delete('/atendimentos/:id', async (request, response) => {
         const id = parseInt(request.params.id);
-        Atendimento.deleta(id, response)
+        const idDeletado = await Atendimento.deleta(id, response)
+
+        response.status(200).json({id: idDeletado});
     });
 }

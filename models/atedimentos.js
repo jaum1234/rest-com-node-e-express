@@ -33,39 +33,47 @@ class Atendimento
 
         const sql = 'INSERT INTO Atendimentos SET ?';
 
-        conexao.query(sql, atendimentoDatado, (err, resultados) => {
-            err ? res.status(400).json(err) : res.status(201).json({...atendimentoDatado});
-        });
-    }
-
-    lista(res)
-    {
-        const sql = 'SELECT * FROM atendimentos';
-
-        conexao.query(sql, (err, resultados) => {
-            if (err) {
-                res.status(400).json(err);
-                return;
-            }
-            res.status(200).json(resultados);
-        });
-    }
-
-    buscaPorId(id, res)
-    {
-        const sql = `SELECT * FROM atendimentos WHERE id = ${id}`;
-
-        conexao.query(sql, (err, resultados) => {
-            const atendimento = resultados[0]
-            if (err) {
-                res.status(400).json(err);
-                return;
-            }
-            res.status(200).json(atendimento);
+        return new Promise(resolve => {
+            conexao.query(sql, atendimentoDatado, (err, resultados) => {
+                if (err) {
+                    throw new Error(err);
+                }
+                resolve(atendimentoDatado);
+            });
         })
     }
 
-    altera(id, valores, res)
+    lista()
+    {
+        const sql = 'SELECT * FROM atendimentos';
+
+        return new Promise((resolve) => {
+            conexao.query(sql, (err, resultados) => {
+                if (err) {
+                    throw new Error(err);
+                }
+                resolve(resultados);
+            });
+        });
+    }
+
+    buscaPorId(id)
+    {
+        const sql = `SELECT * FROM atendimentos WHERE id = ${id}`;
+
+        return new Promise(resolve => {
+            conexao.query(sql, (err, resultados) => {
+                const atendimento = resultados[0]
+                if (err) {
+                    throw new Error(err);
+
+                }
+                resolve(atendimento);
+            });
+        });
+    }
+
+    altera(id, valores)
     {
         if (valores.data) {
             valores.data = moment(valores.data, 'DD/MM/YYYY').format('YYYY-MM-DD HH:mm:ss');
@@ -73,25 +81,26 @@ class Atendimento
 
         const sql = 'UPDATE Atendimentos SET ? where Id = ?';
 
-        conexao.query(sql, [valores, id], (err, resultados) => {
-            if (err) {
-                res.status(400).json(err);
-                return;
-            }
-            res.status(200).json({...valores});
+        return new Promise(resolve => {
+            conexao.query(sql, [valores, id], (err, resultados) => {
+                if (err) {
+                    throw new Error(err);
+                }
+                resolve(valores);
+            });
         });
     }
 
-    deleta(id, res)
+    deleta(id)
     {
         const sql = 'DELETE FROM atendimentos WHERE id = ?';
-
-        conexao.query(sql, id, (err, resultados) => {
-            if (err) {
-                res.status(400).json(err);
-                return;
-            }
-            res.status(200).json({id});
+        return new Promise(resolve => {
+            conexao.query(sql, id, (err, resultados) => {
+                if (err) {
+                    throw new Error(err);
+                }
+                resolve(id);
+            })
         })
     }
 
